@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
   const scoreDisplay = document.getElementById('score');
   const width = 28; // 28x28 squares
- let score = 0;
+  let score = 0;
+  let pacDots = 238;
   // layout of grid and what is in the squares
   const layout = [
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -68,8 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // starting position of pac-man
   let pacmanCurrentIndex = 490;
-
   squares[pacmanCurrentIndex].classList.add('pac-man');
+
+  // let blinkyCurrentIndex = 197;
+  // squares[blinkyCurrentIndex].classList.add('blinky')
 
   // move pac-man
   function movePacman(e) {
@@ -132,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function pacDotEaten() {
     if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
       score++;
+      pacDots -= 1;
       scoreDisplay.innerHTML = score;
       squares[pacmanCurrentIndex].classList.remove('pac-dot');
     }
@@ -141,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function powerPelletEaten() {
     if (squares[pacmanCurrentIndex].classList.contains('power-pellet')) {
       score += 10;
+      pacDots -= 1;
       scoreDisplay.innerHTML = score;
       ghosts.forEach(ghost => ghost.isScared = true);
       setTimeout(unScaredGhosts, 10000);
@@ -176,9 +181,68 @@ document.addEventListener('DOMContentLoaded', () => {
   ghosts.forEach(ghost => {
     squares[ghost.currentIndex].classList.add(ghost.className);
     squares[ghost.currentIndex].classList.add('ghost');
-  })
+  });
 
-  // move ALL the ghost randomly
+  // get Coordinates of pacman or ghost
+  function getCoordinates(index) {
+    return [index % width, Math.floor(index / width)];
+  }
+
+  // smart logic move ghost
+  /*function smartMoveGhost(ghost) {
+    const directions = [-1, +1 , width, -width];
+    let direction = directions[Math.floor(Math.random() * directions.length)];
+
+    ghost.timerId = setInterval(function () {
+      if (
+        !squares[ghost.currentIndex + direction].classList.contains('wall') &&
+        !squares[ghost.currentIndex + direction].classList.contains('ghost')
+      ) {
+        // remove ghost class
+        squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost', 'scared-ghost');
+
+        // check if the new space is closer
+        const [ghostX, ghostY] = getCoordinates(ghost.currentIndex);
+        const [pacManX, pacManY] = getCoordinates(pacmanCurrentIndex);
+        const [ghostNewX, ghostNewY] = getCoordinates(ghost.currentIndex + direction);
+
+        function isXCoordinationCloser() {
+          return (ghostNewX - pacManX) > (ghostX - pacManX);
+        }
+
+        function isYCoordinationCloser() {
+          return (ghostNewY - pacManY) > (ghostY - pacManY);
+        }
+
+        if (isXCoordinationCloser() || isYCoordinationCloser()) {
+          ghost.currentIndex += direction;
+          squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
+        } else {
+          squares[ghost.currentIndex].classList.add(ghost.className);
+          direction = directions[Math.floor(Math.random() * directions.length)];
+        }
+
+        squares[ghost.currentIndex].classList.add(ghost.className);
+      } else direction = directions[Math.floor(Math.random() * directions.length)];
+
+      if (ghost.isScared) {
+        squares[ghost.currentIndex].classList.add('scared-ghost');
+      }
+
+      // if the ghosts scared and pacman runs into it
+      if (ghost.isScared && squares[ghost.currentIndex].classList.contains('pac-man')) {
+        squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost', 'scared-ghost');
+        ghost.currentIndex = ghost.startIndex;
+        score += 100;
+        scoreDisplay.innerHTML = score;
+        squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
+      }
+
+      checkForGameOver();
+    }, ghost.speed);
+  }*/
+
+  // move ALL the ghosts randomly
   ghosts.forEach(ghost => moveGhost(ghost));
 
   // write the function to move the ghost
@@ -237,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // check for a win
   function checkForWin() {
-    if (score === 274) {
+    if (pacDots === 0) {
       ghosts.forEach(ghost => clearInterval(ghost.timerId));
       document.removeEventListener('keyup', movePacman)
       setTimeout(function () {
