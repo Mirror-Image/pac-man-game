@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // add layout to the board
       if (layout[index] === 0) {
         squares[index].classList.add('pac-dot');
+        squares[index].innerHTML = '.';
       } else if (layout[index] === 1) {
         squares[index].classList.add('wall');
       } else if (layout[index] === 2) {
@@ -70,13 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // starting position of pac-man
   let pacmanCurrentIndex = 490;
   squares[pacmanCurrentIndex].classList.add('pac-man');
+  squares[pacmanCurrentIndex].classList.add('pac-man-right')
 
-  // let blinkyCurrentIndex = 197;
-  // squares[blinkyCurrentIndex].classList.add('blinky')
+  function removePacman() {
+    squares[pacmanCurrentIndex].classList.remove('pac-man')
+    squares[pacmanCurrentIndex].classList.remove('pac-man-right')
+    squares[pacmanCurrentIndex].classList.remove('pac-man-left')
+    squares[pacmanCurrentIndex].classList.remove('pac-man-down')
+    squares[pacmanCurrentIndex].classList.remove('pac-man-up')
+  }
 
   // move pac-man
   function movePacman(e) {
-    squares[pacmanCurrentIndex].classList.remove('pac-man');
+    removePacman();
 
     switch (e.key) {
       case 'ArrowLeft': // turn left
@@ -90,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pacmanCurrentIndex - 1 === 363) {
           pacmanCurrentIndex = 391;
         }
-
+        squares[pacmanCurrentIndex].classList.add('pac-man');
+        squares[pacmanCurrentIndex].classList.add('pac-man-left');
         break;
       case 'ArrowUp': // turn up
         if (
@@ -98,6 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
           !squares[pacmanCurrentIndex - width].classList.contains('wall') &&
           !squares[pacmanCurrentIndex - width].classList.contains('ghost-lair')
         ) pacmanCurrentIndex -= width;
+        squares[pacmanCurrentIndex].classList.add('pac-man');
+        squares[pacmanCurrentIndex].classList.add('pac-man-up');
         break;
       case 'ArrowRight': // turn right
         if (
@@ -110,7 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pacmanCurrentIndex + 1 === 392) {
           pacmanCurrentIndex = 364;
         }
-
+        squares[pacmanCurrentIndex].classList.add('pac-man');
+        squares[pacmanCurrentIndex].classList.add('pac-man-right');
         break;
       case 'ArrowDown': // turn down
         if (
@@ -118,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
           !squares[pacmanCurrentIndex + width].classList.contains('wall') &&
           !squares[pacmanCurrentIndex + width].classList.contains('ghost-lair')
         ) pacmanCurrentIndex += width;
+        squares[pacmanCurrentIndex].classList.add('pac-man');
+        squares[pacmanCurrentIndex].classList.add('pac-man-down');
         break;
     }
 
@@ -138,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pacDots -= 1;
       scoreDisplay.innerHTML = score;
       squares[pacmanCurrentIndex].classList.remove('pac-dot');
+      squares[pacmanCurrentIndex].innerHTML = '';
     }
   }
 
@@ -184,9 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // get Coordinates of pacman or ghost
-  function getCoordinates(index) {
+  /*function getCoordinates(index) {
     return [index % width, Math.floor(index / width)];
-  }
+  }*/
 
   // smart logic move ghost
   /*function smartMoveGhost(ghost) {
@@ -292,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
       !squares[pacmanCurrentIndex].classList.contains('scared-ghost')
     ) {
       ghosts.forEach(ghost => clearInterval(ghost.timerId));
-      document.removeEventListener('keyup', movePacman)
+      document.removeEventListener('keyup', movePacman);
       setTimeout(function () {
         alert(`GAME OVER! YOUR SCORE:${score}`)
       }, 500);
@@ -303,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkForWin() {
     if (pacDots === 0) {
       ghosts.forEach(ghost => clearInterval(ghost.timerId));
-      document.removeEventListener('keyup', movePacman)
+      document.removeEventListener('keyup', movePacman);
       setTimeout(function () {
         alert(`YOU HAVE WON! YOUR SCORE:${score}`)
       }, 500);
